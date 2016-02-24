@@ -1,12 +1,14 @@
 package opentok
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
-	"github.com/adrice727/opentok/session"
 	"github.com/google/go-querystring/query"
-	"math/rand"
-	"net/http"
+	"hash"
+	"math"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -26,14 +28,20 @@ type Opentok struct {
 
 func (ot *Opentok) createSession() {
 
-	var c = &http.Client
+	// var c = &http.Client
+
+}
+
+func (ot *Opentok) generateToken(sessionID string) string {
+
+	return sessionID
 
 }
 
 type tokenOpts struct {
 	createTime uint64
 	expireTime uint64
-	nonce      float64 // Random number
+	nonce      string // Random number
 	role       string
 }
 
@@ -43,12 +51,12 @@ func nonce() string {
 	return token
 }
 
-func signString(unsigned string, key string) string {
-	hash := hmac.New(sha1.New, key)
-	decoded :=
+func signString(unsigned, key []byte) hash.Hash {
+	things := hmac.New(sha1.New, append(key, unsigned...))
+	return things
 }
 
-func (ot *Opentok) encodeToken(sessionID string, options tokenOpts) (token string) {
+func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token string) {
 	// Seconds from epoch
 	now := time.Now().Unix()
 
@@ -57,14 +65,20 @@ func (ot *Opentok) encodeToken(sessionID string, options tokenOpts) (token strin
 		tokenOpts
 	}
 
-	if !options {
-		config := &tokenConfig{sessionID, tokenOpts{now, now + (60 * 60 * 24), nonce(), "publisher"}}
+	var config tokenConfig
+
+	if len(options) == 1 {
+		config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
 	} else {
-		config := &tokenConfig{sessionID, options}
+		config := &tokenConfig{sessionID, options[0]}
 	}
 
 	v, _ := query.Values(config)
 	dataString := v.Encode()
-	sig := hmac.New()
+	sig := signString([]byte(dataString), []byte(apiSecret))
 
+	var decoded bytes.Buffer
+	s := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
+	decoded.Write([]byte(s))
+	return
 }

@@ -1,15 +1,15 @@
-package Opentok
+package opentok
 
-import ()
-
-
-// What is included in session?
-type Session struct {
-
-}
-
-func (*s Session) createToken() {
-
-
-
-}
+// import ()
+//
+//
+// // What is included in session?
+// type Session struct {
+//
+// }
+//
+// func (*s Session) createToken() {
+//
+//
+//
+// }
