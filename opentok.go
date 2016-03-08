@@ -15,15 +15,15 @@ import (
 const (
 	apiURL                = "https://api.opentok.com"
 	createSessionEndpoint = "/session/create"
-	apiKey                = "45456032"
-	apiSecret             = "ef525d95c5c9ae83acc75bb24181e3179066d413"
+	// apiKey                = "45456032"
+	// apiSecret             = "ef525d95c5c9ae83acc75bb24181e3179066d413"
 	tokenSentinel         = "T!=="
 )
 
 // Opentok exposes the OpenTok API
 type Opentok struct {
-	APIKey    string
-	APISecret string
+	apiKey    string
+	apiSecret string
 }
 
 func (ot *Opentok) createSession() {
