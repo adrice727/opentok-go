@@ -75,10 +75,10 @@ func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token st
 
 	v, _ := query.Values(config)
 	dataString := v.Encode()
-	sig := signString([]byte(dataString), []byte(apiSecret))
+	sig := signString([]byte(dataString), []byte(ot.apiSecret))
 
 	var decoded bytes.Buffer
-	s := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
+	s := strings.Join([]string{"partner_id=", ot.apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
 	decoded.Write([]byte(s))
 	return
 }
