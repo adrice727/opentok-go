@@ -22,8 +22,8 @@ const (
 
 // Opentok exposes the OpenTok API
 type Opentok struct {
-	apiKey    string
-	apiSecret string
+	APIKey    string
+	APISecret string
 }
 
 func (ot *Opentok) createSession() {
@@ -64,14 +64,14 @@ func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token st
 		sessionID string
 		tokenOpts
 	}
+    
+    config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
 
-	var config tokenConfig
-
-	if len(options) == 1 {
-		config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
-	} else {
-		config := &tokenConfig{sessionID, options[0]}
-	}
+	// if len(options) == 1 {
+	// 	config = &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+	// } else {
+	// 	config = &tokenConfig{sessionID, options[0]}
+	// }
 
 	v, _ := query.Values(config)
 	dataString := v.Encode()
