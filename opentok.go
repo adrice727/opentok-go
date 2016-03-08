@@ -22,8 +22,8 @@ const (
 
 // Opentok exposes the OpenTok API
 type Opentok struct {
-	apiKey    string
-	apiSecret string
+	APIKey    string
+	APISecret string
 }
 
 func (ot *Opentok) createSession() {
