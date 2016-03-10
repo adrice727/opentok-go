@@ -4,20 +4,22 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
+	"fmt"
 	"github.com/google/go-querystring/query"
 	"hash"
+	"log"
 	"math"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const (
+	tokenSentinel         = "T!=="
 	apiURL                = "https://api.opentok.com"
 	createSessionEndpoint = "/session/create"
-	// apiKey                = "45456032"
-	// apiSecret             = "ef525d95c5c9ae83acc75bb24181e3179066d413"
-	tokenSentinel         = "T!=="
+	version               = "0.0.1"
 )
 
 // Opentok exposes the OpenTok API
@@ -26,9 +28,23 @@ type Opentok struct {
 	APISecret string
 }
 
-func (ot *Opentok) createSession() {
+// CreateSession creates a new OpenTok session
+func (ot *Opentok) CreateSession() string {
 
-	// var c = &http.Client
+	client := &http.Client{}
+
+	endpoint := apiURL + createSessionEndpoint
+
+	req, err := http.NewRequest("POST", endpoint, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("User-Agent", "OpenTok-Node-SDK/"+version)
+	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
+	res, _ := client.Do(req)
+	fmt.Println(res)
+
+	return "a string"
 
 }
 
@@ -64,8 +80,8 @@ func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token st
 		sessionID string
 		tokenOpts
 	}
-    
-    config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+
+	config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
 
 	// if len(options) == 1 {
 	// 	config = &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}

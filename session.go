@@ -1,5 +1,10 @@
 package opentok
 
+
+// Session represents an OpenTok session
+type Session struct {
+    
+}
 // import ()
 //
 //
