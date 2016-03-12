@@ -5,14 +5,16 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"hash"
+	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/go-querystring/query"
 )
 
 const (
@@ -42,7 +44,7 @@ func (ot *Opentok) CreateSession() string {
 	req.Header.Set("User-Agent", "OpenTok-Node-SDK/"+version)
 	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
 	res, _ := client.Do(req)
-	fmt.Println(res.Body)
+	fmt.Println(ioutil.ReadAll(res.Body))
 
 	return "a string"
 
