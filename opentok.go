@@ -43,8 +43,8 @@ func (ot *Opentok) CreateSession() string {
 	}
 	req.Header.Set("User-Agent", "OpenTok-Node-SDK/"+version)
 	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
-	res, _ := client.Do(req)
-	fmt.Println(ioutil.ReadAll(res.Body))
+	res, _ := ioutil.ReadAll(client.Do(req))
+	fmt.Println(string(res))
 
 	return "a string"
 
