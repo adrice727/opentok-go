@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
-	"fmt"
+	"encoding/json"
 	"hash"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -31,7 +30,7 @@ type Opentok struct {
 }
 
 // CreateSession creates a new OpenTok session
-func (ot *Opentok) CreateSession() string {
+func (ot *Opentok) CreateSession() Session {
 
 	client := &http.Client{}
 
@@ -43,10 +42,18 @@ func (ot *Opentok) CreateSession() string {
 	}
 	req.Header.Set("User-Agent", "OpenTok-Node-SDK/"+version)
 	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
-	res, _ := ioutil.ReadAll(client.Do(req))
-	fmt.Println(string(res))
+	req.Header.Set("Accept", "application/json")
 
-	return "a string"
+	res, _ := client.Do(req)
+	decoder := json.NewDecoder(res.Body)
+
+	var session Session
+	err = decoder.Decode(&session)
+	if err != nil {
+		panic(err)
+	}
+
+	return session
 
 }
 
