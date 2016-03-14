@@ -1,3 +1,17 @@
 package opentok
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
+
+const (
+	apiKey    = "45456032"
+	apiSecret = "ef525d95c5c9ae83acc75bb24181e3179066d413"
+)
+
+func TestSessionCreation(t *testing.T) {
+	ot := Opentok{apiKey, apiSecret}
+	session := ot.CreateSession()
+	fmt.Printf("%+v\n", session)
+}

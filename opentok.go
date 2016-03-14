@@ -45,16 +45,17 @@ func (ot *Opentok) CreateSession() Session {
 	req.Header.Set("Accept", "application/json")
 
 	res, _ := client.Do(req)
+	defer res.Body.Close()
 	decoder := json.NewDecoder(res.Body)
 
-	var session Session
-	err = decoder.Decode(&session)
+	var sessionData []Session
+
+	err = decoder.Decode(&sessionData)
 	if err != nil {
 		panic(err)
 	}
 
-	return session
-
+	return sessionData[0]
 }
 
 func (ot *Opentok) generateToken(sessionID string) string {
