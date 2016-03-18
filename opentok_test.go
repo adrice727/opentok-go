@@ -15,3 +15,10 @@ func TestSessionCreation(t *testing.T) {
 	session := ot.CreateSession()
 	fmt.Printf("%+v\n", session)
 }
+
+func TestTokenCreation(t *testing.T) {
+	ot := Opentok{apiKey, apiSecret}
+	session := ot.CreateSession()
+	token := ot.GenerateToken(session.SessionID)
+	fmt.Printf("%+v\n", token)
+}
