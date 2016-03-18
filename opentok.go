@@ -58,17 +58,18 @@ func (ot *Opentok) CreateSession() Session {
 	return sessionData[0]
 }
 
-func (ot *Opentok) generateToken(sessionID string) string {
-
-	return sessionID
-
-}
-
 type tokenOpts struct {
 	createTime uint64
 	expireTime uint64
 	nonce      string // Random number
 	role       string
+}
+
+// GenerateToken returns an opentok token
+func (ot *Opentok) GenerateToken(sessionID string) string {
+
+	return "tokentoken"
+
 }
 
 func nonce() string {
@@ -82,24 +83,26 @@ func signString(unsigned, key []byte) hash.Hash {
 	return things
 }
 
+// encodeToken requires a sesssionID and accepts optional tokenOpts
 func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token string) {
 	// Seconds from epoch
 	now := time.Now().Unix()
 
 	type tokenConfig struct {
 		sessionID string
-		tokenOpts
+		options   tokenOpts
 	}
 
-	config := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+	defaultConfig := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+	var finalConfig interface{}
 
-	// if len(options) == 1 {
-	// 	config = &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
-	// } else {
-	// 	config = &tokenConfig{sessionID, options[0]}
-	// }
+	if len(options) > 0 {
+		finalConfig = Extend(defaultConfig, &tokenConfig{sessionID: sessionID, options: options[0]})
+	} else {
+		finalConfig = *defaultConfig
+	}
 
-	v, _ := query.Values(config)
+	v, _ := query.Values(finalConfig)
 	dataString := v.Encode()
 	sig := signString([]byte(dataString), []byte(ot.APISecret))
 
