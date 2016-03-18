@@ -65,10 +65,29 @@ type tokenOpts struct {
 	role       string
 }
 
-// GenerateToken returns an opentok token
-func (ot *Opentok) GenerateToken(sessionID string) string {
+type tokenConfig struct {
+	sessionID string
+	options   tokenOpts
+}
 
-	return "tokentoken"
+// GenerateToken returns an opentok token
+func (ot *Opentok) GenerateToken(sessionID string, options ...tokenOpts) string {
+
+	// Seconds from epoch
+	now := time.Now().Unix()
+
+	defaultConfig := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+
+	// Extend returns an empty interface.  We use type assetion to convert if back to a tokenConfig
+	var finalConfig interface{}
+
+	if len(options) > 0 {
+		finalConfig = Extend(defaultConfig, &tokenConfig{sessionID: sessionID, options: options[0]})
+	} else {
+		finalConfig = *defaultConfig
+	}
+
+	return encodeToken(finalConfig.(tokenConfig), ot.APIKey, ot.APISecret)
 
 }
 
@@ -84,30 +103,14 @@ func signString(unsigned, key []byte) hash.Hash {
 }
 
 // encodeToken requires a sesssionID and accepts optional tokenOpts
-func (ot *Opentok) encodeToken(sessionID string, options ...tokenOpts) (token string) {
-	// Seconds from epoch
-	now := time.Now().Unix()
+func encodeToken(config tokenConfig, apiKey string, apiSecret string) (token string) {
 
-	type tokenConfig struct {
-		sessionID string
-		options   tokenOpts
-	}
-
-	defaultConfig := &tokenConfig{sessionID, tokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
-	var finalConfig interface{}
-
-	if len(options) > 0 {
-		finalConfig = Extend(defaultConfig, &tokenConfig{sessionID: sessionID, options: options[0]})
-	} else {
-		finalConfig = *defaultConfig
-	}
-
-	v, _ := query.Values(finalConfig)
+	v, _ := query.Values(config)
 	dataString := v.Encode()
-	sig := signString([]byte(dataString), []byte(ot.APISecret))
+	sig := signString([]byte(dataString), []byte(apiSecret))
 
 	var decoded bytes.Buffer
-	s := strings.Join([]string{"partner_id=", ot.APIKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
+	s := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
 	decoded.Write([]byte(s))
 	return
 }
