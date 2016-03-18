@@ -103,7 +103,7 @@ func signString(unsigned, key []byte) hash.Hash {
 }
 
 // encodeToken requires a tokenConfig, apiKey, and apiSecret
-func encodeToken(config tokenConfig, apiKey string, apiSecret string) (token string) {
+func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 
 	v, _ := query.Values(config)
 	dataString := v.Encode()
@@ -112,5 +112,5 @@ func encodeToken(config tokenConfig, apiKey string, apiSecret string) (token str
 	var decoded bytes.Buffer
 	s := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
 	decoded.Write([]byte(s))
-	return
+	return tokenSentinel + decoded.String()
 }
