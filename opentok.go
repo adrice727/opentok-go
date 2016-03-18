@@ -40,7 +40,7 @@ func (ot *Opentok) CreateSession() Session {
 	if err != nil {
 		log.Fatal(err)
 	}
-	req.Header.Set("User-Agent", "OpenTok-Node-SDK/"+version)
+	req.Header.Set("User-Agent", "OpenTok-Go-SDK/"+version)
 	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
 	req.Header.Set("Accept", "application/json")
 
@@ -102,7 +102,7 @@ func signString(unsigned, key []byte) hash.Hash {
 	return things
 }
 
-// encodeToken requires a sesssionID and accepts optional tokenOpts
+// encodeToken requires a tokenConfig, apiKey, and apiSecret
 func encodeToken(config tokenConfig, apiKey string, apiSecret string) (token string) {
 
 	v, _ := query.Values(config)
