@@ -58,11 +58,12 @@ func (ot *Opentok) CreateSession() Session {
 	return sessionData[0]
 }
 
+// Structs tags are used by querystring package
 type tokenOpts struct {
-	createTime uint64
-	expireTime uint64
-	nonce      string // Random number
-	role       string
+	createTime uint64 `url:"create_time"`
+	expireTime uint64 `url:"expire_time"`
+	nonce      string `url:"nonce"` // Random number
+	role       string `url:"role"`
 }
 
 type tokenConfig struct {
@@ -105,12 +106,17 @@ func signString(unsigned, key []byte) hash.Hash {
 // encodeToken requires a tokenConfig, apiKey, and apiSecret
 func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 
-	v, _ := query.Values(config)
-	dataString := v.Encode()
+	session := struct {
+		sessionID string `url:"session_id"`
+	}{config.sessionID}
+
+	s, _ := query.Values(session)
+	o, _ := query.Values(config.options)
+	dataString := s.Encode() + "&" + o.Encode()
 	sig := signString([]byte(dataString), []byte(apiSecret))
 
 	var decoded bytes.Buffer
-	s := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
-	decoded.Write([]byte(s))
+	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
+	decoded.Write([]byte(queryString))
 	return tokenSentinel + decoded.String()
 }
