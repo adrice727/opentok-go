@@ -60,15 +60,15 @@ func (ot *Opentok) CreateSession() Session {
 
 // Structs tags are used by querystring package
 type tokenOpts struct {
-	createTime uint64 `url:"create_time"`
-	expireTime uint64 `url:"expire_time"`
-	nonce      string `url:"nonce"` // Random number
-	role       string `url:"role"`
+	CreateTime uint64 `url:"create_time"`
+	ExpireTime uint64 `url:"expire_time"`
+	Nonce      string `url:"nonce"` // Random number
+	Role       string `url:"role"`
 }
 
 type tokenConfig struct {
-	sessionID string
-	options   tokenOpts
+	SessionID string
+	Options   tokenOpts
 }
 
 // GenerateToken returns an opentok token
@@ -83,7 +83,7 @@ func (ot *Opentok) GenerateToken(sessionID string, options ...tokenOpts) string 
 	var finalConfig interface{}
 
 	if len(options) > 0 {
-		finalConfig = Extend(defaultConfig, &tokenConfig{sessionID: sessionID, options: options[0]})
+		finalConfig = Extend(defaultConfig, &tokenConfig{SessionID: sessionID, Options: options[0]})
 	} else {
 		finalConfig = *defaultConfig
 	}
@@ -107,14 +107,15 @@ func signString(unsigned, key []byte) hash.Hash {
 func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 
 	session := struct {
-		sessionID string `url:"session_id"`
-	}{config.sessionID}
+		SessionID string `url:"session_id"`
+	}{config.SessionID}
 
 	s, _ := query.Values(session)
-	o, _ := query.Values(config.options)
-	dataString := s.Encode() + "&" + o.Encode()
-	sig := signString([]byte(dataString), []byte(apiSecret))
+	o, _ := query.Values(config.Options)
 
+	dataString := s.Encode() + "&" + o.Encode()
+
+	sig := signString([]byte(dataString), []byte(apiSecret))
 	var decoded bytes.Buffer
 	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
 	decoded.Write([]byte(queryString))
