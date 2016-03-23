@@ -98,9 +98,10 @@ func nonce() string {
 	return token
 }
 
-func signString(unsigned, key []byte) hash.Hash {
-	things := hmac.New(sha1.New, append(key, unsigned...))
-	return things
+func signString(unsigned, key string) hash.Hash {
+	sig := hmac.New(sha1.New, []byte(key))
+	sig.Write([]byte(unsigned))
+	return sig
 }
 
 // encodeToken requires a tokenConfig, apiKey, and apiSecret
@@ -115,7 +116,7 @@ func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 
 	dataString := s.Encode() + "&" + o.Encode()
 
-	sig := signString([]byte(dataString), []byte(apiSecret))
+	sig := signString(dataString, apiSecret)
 	var decoded bytes.Buffer
 	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
 	decoded.Write([]byte(queryString))
