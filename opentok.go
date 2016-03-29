@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"log"
 	"math"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,7 +18,7 @@ import (
 )
 
 const (
-	tokenSentinel         = "T!=="
+	tokenSentinel         = "T1=="
 	apiURL                = "https://api.opentok.com"
 	createSessionEndpoint = "/session/create"
 	version               = "0.0.1"
@@ -90,6 +91,16 @@ func (ot *Opentok) GenerateToken(sessionID string, options ...tokenOpts) string 
 
 	return encodeToken(finalConfig.(tokenConfig), ot.APIKey, ot.APISecret)
 
+}
+
+func random() string {
+	// rand should be seeded, or sourced at the top leve of the file
+	// which I can do once I move all of the token functions to a
+	// separate module
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	token := random.Float64()
+	return strconv.FormatFloat(token, 'f', 17, 64)
 }
 
 func nonce() string {
