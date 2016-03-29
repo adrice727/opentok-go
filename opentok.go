@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
-	"hash"
 	"log"
 	"math"
 	"net/http"
@@ -98,10 +98,10 @@ func nonce() string {
 	return token
 }
 
-func signString(unsigned, key string) hash.Hash {
-	sig := hmac.New(sha1.New, []byte(key))
-	sig.Write([]byte(unsigned))
-	return sig
+func signString(unsigned, key string) string {
+	h := hmac.New(sha1.New, []byte(key))
+	h.Write([]byte(unsigned))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
 // encodeToken requires a tokenConfig, apiKey, and apiSecret
@@ -118,7 +118,7 @@ func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 
 	sig := signString(dataString, apiSecret)
 	var decoded bytes.Buffer
-	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", string(sig.Sum(nil)), ":", dataString}, "")
+	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", sig, ":", dataString}, "")
 	decoded.Write([]byte(queryString))
 	return tokenSentinel + decoded.String()
 }
