@@ -1,9 +1,9 @@
 package opentok
 
 import (
-	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"log"
@@ -117,8 +117,6 @@ func encodeToken(config tokenConfig, apiKey string, apiSecret string) string {
 	dataString := s.Encode() + "&" + o.Encode()
 
 	sig := signString(dataString, apiSecret)
-	var decoded bytes.Buffer
 	queryString := strings.Join([]string{"partner_id=", apiKey, "&sig=", sig, ":", dataString}, "")
-	decoded.Write([]byte(queryString))
-	return tokenSentinel + decoded.String()
+	return tokenSentinel + base64.StdEncoding.EncodeToString([]byte(queryString))
 }
