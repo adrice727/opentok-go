@@ -7,17 +7,3 @@ type Session struct {
 	CreatedAt      string `json:"create_dt"`
 	MediaServerURL string `json:"media_server_url"`
 }
-
-// import ()
-//
-//
-// // What is included in session?
-// type Session struct {
-//
-// }
-//
-// func (*s Session) createToken() {
-//
-//
-//
-// }

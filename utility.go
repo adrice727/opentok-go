@@ -53,7 +53,6 @@ func Extend(mainObj interface{}, newData interface{}) reflect.Value {
 	fieldCount := newDataVal.NumField()
 	for i := 0; i < fieldCount; i++ {
 		newValue := newDataVal.Field(i)
-		// They passed in a value for this field, update our DB user
 		if newValue.IsValid() && !IsZero(newValue) {
 			currentField := finalObjVal.Field(i)
 			currentField.Set(newValue)
