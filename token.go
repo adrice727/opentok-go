@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"encoding/hex"
-	"math"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -32,21 +31,11 @@ type TokenConfig struct {
 	Options   TokenOpts
 }
 
-// not currently used
-func random() string {
-	// rand should be seeded, or sourced at the top leve of the file
-	// which I can do once I move all of the token functions to a
-	// separate module
+func nonce() string {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
 	token := random.Float64()
 	return strconv.FormatFloat(token, 'f', 17, 64)
-}
-
-func nonce() string {
-	now := int64(math.Pow10(2)) + (time.Now().UnixNano() / 10000)
-	token := strconv.FormatInt(now, 10)
-	return token
 }
 
 func signString(unsigned, key string) string {
