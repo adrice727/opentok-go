@@ -34,5 +34,6 @@ func TestTokenCreation(t *testing.T) {
 	ot := Opentok{config.APIKey, config.APISecret}
 	session := ot.CreateSession()
 	token := ot.GenerateToken(session.SessionID)
+	fmt.Println("session", session)
 	fmt.Printf("%+v\n", token)
 }
