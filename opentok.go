@@ -49,12 +49,12 @@ func (ot *Opentok) CreateSession() Session {
 }
 
 // GenerateToken returns an opentok token
-func (ot *Opentok) GenerateToken(sessionID string, options ...TokenOpts) string {
+func (ot *Opentok) GenerateToken(sessionID string, options ...TokenOptions) string {
 
 	// Seconds from epoch
 	now := time.Now().Unix()
 
-	defaultConfig := &TokenConfig{sessionID, TokenOpts{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
+	defaultConfig := &TokenConfig{sessionID, TokenOptions{uint64(now), uint64(now) + (60 * 60 * 24), nonce(), "publisher"}}
 
 	// Extend returns an empty interface.  We use type assetion to convert if back to a TokenConfig
 	var finalConfig interface{}

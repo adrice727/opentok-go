@@ -17,8 +17,8 @@ const (
 	tokenSentinel = "T1=="
 )
 
-// TokenOpts Structs tags are used by querystring package
-type TokenOpts struct {
+// TokenOptions Structs tags are used by querystring package
+type TokenOptions struct {
 	CreateTime uint64 `url:"create_time"`
 	ExpireTime uint64 `url:"expire_time"`
 	Nonce      string `url:"nonce"` // Random number
@@ -28,7 +28,7 @@ type TokenOpts struct {
 // TokenConfig does things
 type TokenConfig struct {
 	SessionID string
-	Options   TokenOpts
+	Options   TokenOptions
 }
 
 func nonce() string {
