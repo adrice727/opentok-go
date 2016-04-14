@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/juju/errors"
 )
 
 const (
@@ -20,7 +22,7 @@ type Opentok struct {
 }
 
 // CreateSession creates a new OpenTok session
-func (ot *Opentok) CreateSession() Session {
+func (ot *Opentok) CreateSession() (Session, error) {
 
 	client := &http.Client{}
 
@@ -29,6 +31,8 @@ func (ot *Opentok) CreateSession() Session {
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		log.Fatal(err)
+		return Session{}, errors.Annotate(err, "OT: Unable to create an OpenTok session")
+
 	}
 	req.Header.Set("User-Agent", "OpenTok-Go-SDK/"+version)
 	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
@@ -42,10 +46,10 @@ func (ot *Opentok) CreateSession() Session {
 
 	err = decoder.Decode(&sessionData)
 	if err != nil {
-		panic(err)
+		return Session{}, errors.Annotate(err, "OT: An error occurred decoding the OpenTok session")
 	}
 
-	return sessionData[0]
+	return sessionData[0], nil
 }
 
 // GenerateToken returns an opentok token
