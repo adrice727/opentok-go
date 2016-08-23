@@ -1,8 +1,6 @@
 package opentok
 
-import (
-	"reflect"
-)
+import "reflect"
 
 // IsZero determines whether or not a variable/field/whatever is of it's type's zero value
 // Pass reflect.ValueOf(x)
@@ -49,6 +47,7 @@ func Update(mainObj interface{}, newData interface{}) bool {
 // Extend is the same as Update above, but does not mutate user input
 func Extend(mainObj interface{}, newData interface{}) reflect.Value {
 	finalObjVal := reflect.ValueOf(mainObj).Elem()
+
 	newDataVal := reflect.ValueOf(newData).Elem()
 	fieldCount := newDataVal.NumField()
 	for i := 0; i < fieldCount; i++ {
@@ -58,5 +57,6 @@ func Extend(mainObj interface{}, newData interface{}) reflect.Value {
 			currentField.Set(newValue)
 		}
 	}
+
 	return finalObjVal
 }
