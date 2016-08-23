@@ -76,9 +76,8 @@ func (ot *Opentok) GenerateToken(sessionID string, options ...TokenOptions) stri
 
 // CommonHeaders sets the common headers for requests to the OpenTok API
 func (ot *Opentok) CommonHeaders(h *http.Header) {
-	h.Add("User-Agent", "OpenTok-Go-SDK/"+version)
-	h.Add("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
-	h.Add("X-TB-VERSION", "1")
-	h.Add("Accept", "application/json")
-	h.Add("Content-type", "application/json")
+	h.Set("User-Agent", "OpenTok-Go-SDK/"+version)
+	h.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
+	h.Set("X-TB-VERSION", "1")
+	h.Set("Accept", "application/json")
 }
