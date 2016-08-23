@@ -29,14 +29,14 @@ func (ot *Opentok) CreateSession() (*Session, error) {
 	endpoint := apiURL + createSessionEndpoint
 
 	req, err := http.NewRequest("POST", endpoint, nil)
+	// req.Close = true
 	if err != nil {
 		log.Fatal(err)
 		return nil, errors.Annotate(err, "OT: Unable to create an OpenTok session")
 
 	}
-	req.Header.Set("User-Agent", "OpenTok-Go-SDK/"+version)
-	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
-	req.Header.Set("Accept", "application/json")
+
+	ot.CommonHeaders(&req.Header)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -72,4 +72,13 @@ func (ot *Opentok) GenerateToken(sessionID string, options ...TokenOptions) stri
 
 	return EncodeToken(*config, ot.APIKey, ot.APISecret)
 
+}
+
+// CommonHeaders sets the common headers for requests to the OpenTok API
+func (ot *Opentok) CommonHeaders(h *http.Header) {
+	h.Add("User-Agent", "OpenTok-Go-SDK/"+version)
+	h.Add("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
+	h.Add("X-TB-VERSION", "1")
+	h.Add("Accept", "application/json")
+	h.Add("Content-type", "application/json")
 }
