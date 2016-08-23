@@ -96,20 +96,13 @@ type ArchiveOptions struct {
 }
 
 // StartArchive starts archiving an OpenTok session
-func (ot *Opentok) StartArchive(sessionID string, options ...ArchiveOptions) Archive {
+func (ot *Opentok) StartArchive(sessionID string, options ...ArchiveOptions) (*Archive, error) {
 
-	defaultOptions := &ArchiveOptions{"", true, true, "composed"}
-
-	// Extend returns an empty interface.  We use type assetion to convert if back to a TokenConfig
-	var finalOptions interface{}
+	archiveOptions := &ArchiveOptions{"OpenTok Archive", true, true, "composed"}
 
 	if len(options) > 0 {
-		finalOptions = Extend(defaultOptions, &ArchiveOptions{})
-	} else {
-		finalOptions = *defaultOptions
+		Update(archiveOptions, &options[0])
 	}
-
-	myOptions := finalOptions.(ArchiveOptions)
 
 	archiveConfig := struct {
 		SessionID  string `json:"sessionId"`
@@ -117,29 +110,60 @@ func (ot *Opentok) StartArchive(sessionID string, options ...ArchiveOptions) Arc
 		HasAudio   bool   `json:"hasAudio"`
 		HasVideo   bool   `json:"hasVideo"`
 		OutputMode string `json:"outputMode"`
-	}{sessionID, myOptions.Name, myOptions.HasAudio, myOptions.HasVideo, myOptions.OutputMode}
+	}{sessionID, archiveOptions.Name, archiveOptions.HasAudio, archiveOptions.HasVideo, archiveOptions.OutputMode}
 
 	client := &http.Client{}
 
-	endpoint := apiURL + archiveEndoint
+	endpoint := fmt.Sprintf("%s/v2/partner/%s/archive", apiURL, ot.APIKey)
 
-	body, _ := json.Marshal(archiveConfig)
+	body := bytes.NewBufferString("")
+	json.NewEncoder(body).Encode(archiveConfig)
 
+	startArchiveError := "OT: Unable to start session archive"
 	req, err := http.NewRequest("POST", endpoint, body)
 	if err != nil {
 		log.Fatal(err)
+		return nil, errors.Annotate(err, startArchiveError)
+	}
+	ot.CommonHeaders(&req.Header)
+	req.Header.Set("Content-type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.Annotate(err, startArchiveError)
 	}
 
-	req.Header.Set("User-Agent", "OpenTok-Go-SDK/"+version)
-	req.Header.Set("X-TB-PARTNER-AUTH", ot.APIKey+":"+ot.APISecret)
-	req.Header.Set("Accept", "application/json")
+	defer res.Body.Close()
+	archiveData := &Archive{}
+	json.NewDecoder(res.Body).Decode(archiveData)
 
-	a := Archive{}
-	return a
+	if err != nil {
+		return nil, errors.Annotate(err, "OT: An error occurred decoding the OpenTok archive")
+	}
+
+	return archiveData, nil
 }
 
 // StopArchive starts archiving an OpenTok session
-func (ot *Opentok) StopArchive() Archive {
-	a := Archive{}
-	return a
+func (ot *Opentok) StopArchive(archiveID string) error {
+
+	endpoint := fmt.Sprintf("%s/v2/partner/%s/archive/%s/stop", apiURL, ot.APIKey, archiveID)
+	stopArchiveError := "OT: An error occurred while trying to stop the archive"
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", endpoint, nil)
+	if err != nil {
+		log.Fatal(err)
+		return errors.Annotate(err, stopArchiveError)
+	}
+
+	ot.CommonHeaders(&req.Header)
+	req.Header.Set("Content-type", "application/json")
+
+	_, err = client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		return errors.Annotate(err, stopArchiveError)
+	}
+	return nil
 }
