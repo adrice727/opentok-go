@@ -39,6 +39,7 @@ func TestTokenCreation(t *testing.T) {
 }
 
 // There must be an active publisher in order to start archiving
+// TODO Update error checking in Archiving
 func TestStartArchive(t *testing.T) {
 	ot := Opentok{config.APIKey, config.APISecret}
 	session, _ := ot.CreateSession()
@@ -47,7 +48,6 @@ func TestStartArchive(t *testing.T) {
 	fmt.Print(archive)
 }
 
-// An active session
 func TestStopArchive(t *testing.T) {
 	ot := Opentok{config.APIKey, config.APISecret}
 	archiveID := ""
@@ -56,5 +56,16 @@ func TestStopArchive(t *testing.T) {
 		fmt.Println("Error stopping the archive")
 	} else {
 		fmt.Println("Succesfully stopped the archive")
+	}
+}
+
+func TestGetArchive(t *testing.T) {
+	ot := Opentok{config.APIKey, config.APISecret}
+	archiveID := "31cd48a1-654b-4801-84dd-77c20b008a86"
+	archive, err := ot.GetArchive(archiveID)
+	if err != nil {
+		fmt.Printf("Error retrieving archive %s", archiveID)
+	} else {
+		fmt.Println("Succesfully retrived the archive", archive)
 	}
 }

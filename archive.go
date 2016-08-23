@@ -167,3 +167,29 @@ func (ot *Opentok) StopArchive(archiveID string) error {
 	}
 	return nil
 }
+
+// GetArchive return an OpenTok Archive
+func (ot *Opentok) GetArchive(archiveID string) (*Archive, error) {
+
+	endpoint := fmt.Sprintf("%s/v2/partner/%s/archive/%s", apiURL, ot.APIKey, archiveID)
+	getArchiveError := "OT: An error occurred while trying to retrive the archive"
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.Annotate(err, getArchiveError)
+	}
+
+	ot.CommonHeaders(&req.Header)
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.Annotate(err, getArchiveError)
+	}
+
+	archiveData := &Archive{}
+	json.NewDecoder(res.Body).Decode(archiveData)
+
+	return archiveData, nil
+}
