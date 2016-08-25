@@ -193,3 +193,28 @@ func (ot *Opentok) GetArchive(archiveID string) (*Archive, error) {
 
 	return archiveData, nil
 }
+
+// DeleteArchive deletes an OpenTok Archive
+func (ot *Opentok) DeleteArchive(archiveID string) error {
+
+	endpoint := fmt.Sprintf("%s/v2/partner/%s/archive/%s", apiURL, ot.APIKey, archiveID)
+	deleteArchiveError := "OT: An error occurred while trying to delete the archive"
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", endpoint, nil)
+	if err != nil {
+		log.Fatal(err)
+		return errors.Annotate(err, deleteArchiveError)
+	}
+
+	ot.CommonHeaders(&req.Header)
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		return errors.Annotate(err, deleteArchiveError)
+	}
+
+	fmt.Println("result from delete", res)
+
+	return nil
+}

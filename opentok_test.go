@@ -69,3 +69,14 @@ func TestGetArchive(t *testing.T) {
 		fmt.Println("Succesfully retrived the archive", archive)
 	}
 }
+
+func TestDeleteArchive(t *testing.T) {
+	ot := Opentok{config.APIKey, config.APISecret}
+	archiveID := "31cd48a1-654b-4801-84dd-77c20b008a86"
+	err := ot.DeleteArchive(archiveID)
+	if err != nil {
+		fmt.Printf("Error deleting archive %s", archiveID)
+	} else {
+		fmt.Printf("Succesfully deleted the archive %s", archiveID)
+	}
+}
